@@ -1,8 +1,7 @@
 import googlemaps
-import pprint
-from datetime import datetime
+import config
 
-map_client = googlemaps.Client(key="<YOUR KEY>")
+map_client = googlemaps.Client(key=config.api_key)
 
 
 # Get info on a location on Google Maps
