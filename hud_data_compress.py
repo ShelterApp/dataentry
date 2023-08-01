@@ -2,6 +2,7 @@ import pandas as pd
 import requests
 import json
 import map_info as mi
+import config
 
 
 # Loads data
@@ -30,21 +31,25 @@ def check_database(name, address1, city, state):
     if ")" in name:
         name = name[0:name.find(")")]
 
-    # Search for a resource on Shelter App
-    request_list = requests.get("https://api.shelter.app/services?filter=isApproved&isApproved=true&limit=100&skip=0&search=name,address1,address2,city,state,zip,serviceSummary,category,age&q=" + name)
-    data_dict = json.loads(request_list.content)
+    try:
+        # Search for a resource on Shelter App
+        request_list = requests.get("https://api.shelter.app/services?filter=isApproved&isApproved=true&limit=100&skip=0&search=name,address1,address2,city,state,zip,serviceSummary,category,age&q=" + name)
+        data_dict = json.loads(request_list.content)
 
-    # Return true if there is a resource in Shelter App that matches a resource from the CSV
-    for data in data_dict:
-        if address1 == data["address1"] and city == data["city"] and state == data["state"]:
-            return True
+        # Return true if there is a resource in Shelter App that matches a resource from the CSV
+        for data in data_dict:
+            if address1 == data["address1"] and city == data["city"] and state == data["state"]:
+                return True
+    except Exception as e:
+        print(e)
+        return False
 
     return False
 
 
 def main():
     # Load the data
-    df = load_compressed("hud-data.csv")
+    df = load_compressed(config.input)
 
     deletion = []
     deleted = 0
@@ -71,7 +76,7 @@ def main():
     df = mi.get_expanded_df(df)
 
     # Create the final CSV to be used on Shelter App
-    df.to_csv("hud-data-compressed.csv", sep=",")
+    df.to_csv(config.output, sep=",")
 
 
 if __name__ == "__main__":
